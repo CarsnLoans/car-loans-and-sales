@@ -13,7 +13,7 @@ const Header = () => {
         <div className="col-9">
           New Car Loan | Used Car Loan | Refinance | Loan Transfer
         </div>
-        <div className="col-3">Give a missed call +91 9066783740</div>
+        <div className="col-3">Give a missed call +91 86605 16762</div>
       </div>
 
       {/* Navbar */}
