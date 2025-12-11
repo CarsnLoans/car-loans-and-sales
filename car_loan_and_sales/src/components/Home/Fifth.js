@@ -6,7 +6,7 @@ const Fifth = () => {
       <h1 className="text-danger m-5 pt-5 text-center">
         Give a missed call +91 9686-870-536
       </h1>
-      <div className="p-5 mx-5 mb-5">
+      <div className="p-md-5 mx-md-5 mb-5">
         <h3>FAQ's?</h3>
         <div className="accordion" id="accordionExample">
           <div className="accordion-item">

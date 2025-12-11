@@ -7,7 +7,7 @@ import Eligibility from "./pages/Eligibility";
 import InterestRates from "./pages/InterestRates";
 
 import ApplyNow from "./pages/ApplyNow";
-import EMICalculator from "./pages/EMICalculator";
+import EMICalculator from "./pages/EMIcalculator";
 
 function App() {
   return (

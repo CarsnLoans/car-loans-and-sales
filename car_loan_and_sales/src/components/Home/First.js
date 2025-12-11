@@ -1,17 +1,17 @@
 import React, { Fragment } from "react";
 import cars from "../images/cars.png";
 import { Link } from "react-router-dom";
-import { useAuth0 } from "@auth0/auth0-react";
+// import { useAuth0 } from "@auth0/auth0-react";
 
 const First = () => {
-  const { isAuthenticated } = useAuth0();
+  // const { isAuthenticated } = useAuth0();
   return (
     <Fragment>
       <div
-        className="row ps-5  d-flex align-items-center first-container"
+        className="row ps-5  d-flex align-items-center first-container flex-column flex-md-row justify-content-center"
         style={{ backgroundColor: "#d90429", height: "550px" }}
       >
-        <div className="col-5 d-flex justify-content-around flex-column align-items-start">
+        <div className="col-md-5 d-flex justify-content-around flex-column align-items-start mb-5">
           <p
             className="mb-4 fw-bold "
             style={{ color: "#fca311", letterSpacing: "2px" }}
@@ -41,7 +41,7 @@ const First = () => {
           </div>
         </div>
 
-        <div className="col-7">
+        <div className="col-md-7 md:w-auto">
           <img style={{ width: "100%" }} src={cars} alt="carsImage" />
         </div>
       </div>
