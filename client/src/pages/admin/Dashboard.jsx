@@ -55,7 +55,7 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="p-8 space-y-6">
+      <div className="p-4 md:p-6 lg:p-8 space-y-6">
         <Skeleton className="h-8 w-48" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
@@ -84,7 +84,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-4 md:p-6 lg:p-8 space-y-8">
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>

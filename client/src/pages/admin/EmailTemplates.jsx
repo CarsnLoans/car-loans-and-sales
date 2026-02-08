@@ -69,7 +69,7 @@ const EmailTemplates = () => {
 
   if (loading) {
     return (
-      <div className="p-8 space-y-4">
+      <div className="p-4 md:p-6 lg:p-8 space-y-4">
         <Skeleton className="h-8 w-48" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Skeleton className="h-10" />
@@ -82,7 +82,7 @@ const EmailTemplates = () => {
   }
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-4 md:p-6 lg:p-8 space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
