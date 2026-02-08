@@ -1,5 +1,21 @@
 const Lead = require('../models/Lead');
+const AuditLog = require('../models/AuditLog');
 const { sendEmail } = require('../services/emailService');
+
+const logAudit = async ({ req, action, entityId, metadata = {} }) => {
+  try {
+    if (!req?.admin) return;
+    await AuditLog.create({
+      action,
+      entityType: 'Lead',
+      entityId,
+      performedBy: req.admin.id,
+      metadata,
+    });
+  } catch (error) {
+    console.error('Audit log error:', error);
+  }
+};
 
 // @desc    Create new lead (from public form)
 // @route   POST /api/leads
@@ -235,6 +251,19 @@ const updateLead = async (req, res) => {
       });
     }
 
+    await logAudit({
+      req,
+      action: 'lead_updated',
+      entityId: lead._id,
+      metadata: {
+        previousStatus,
+        newStatus: lead.status,
+        assignedTo: assignedTo || lead.assignedTo || null,
+        nextFollowUpAt: lead.nextFollowUpAt || null,
+        noteAdded: Boolean(note),
+      },
+    });
+
     res.status(200).json({
       success: true,
       message: 'Lead updated successfully',
@@ -288,6 +317,19 @@ const bulkUpdateLeads = async (req, res) => {
       );
     }
 
+    await logAudit({
+      req,
+      action: 'lead_bulk_updated',
+      entityId: null,
+      metadata: {
+        ids,
+        status: status || null,
+        assignedTo: assignedTo || null,
+        nextFollowUpAt: nextFollowUpAt || null,
+        noteAdded: Boolean(note),
+      },
+    });
+
     res.status(200).json({
       success: true,
       message: 'Leads updated successfully',
@@ -316,6 +358,17 @@ const deleteLead = async (req, res) => {
     }
 
     await lead.deleteOne();
+
+    await logAudit({
+      req,
+      action: 'lead_deleted',
+      entityId: lead._id,
+      metadata: {
+        name: `${lead.firstName} ${lead.lastName}`,
+        email: lead.email,
+        status: lead.status,
+      },
+    });
 
     res.status(200).json({
       success: true,

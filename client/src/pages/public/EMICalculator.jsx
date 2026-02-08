@@ -3,8 +3,14 @@ import PageHeader from '../../components/common/PageHeader';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import { Calculator, BadgeIndianRupee } from 'lucide-react';
+import usePageMeta from '../../hooks/usePageMeta';
 
 const EMICalculator = () => {
+  usePageMeta({
+    title: 'EMI Calculator | Car Loans & Sales',
+    description: 'Calculate your monthly EMI for car loans with our easy calculator.',
+  });
+
   const [principal, setPrincipal] = useState(0);
   const [interestRate, setInterestRate] = useState(0);
   const [tenure, setTenure] = useState(0);

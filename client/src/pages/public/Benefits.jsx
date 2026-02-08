@@ -2,6 +2,7 @@ import PageHeader from '../../components/common/PageHeader';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import { Link } from 'react-router-dom';
+import usePageMeta from '../../hooks/usePageMeta';
 import {
   BadgeCheck,
   Clock,
@@ -12,6 +13,11 @@ import {
 } from 'lucide-react';
 
 const Benefits = () => {
+  usePageMeta({
+    title: 'Benefits | Car Loans & Sales',
+    description: 'Explore key benefits and features of used car loans with fast approvals and flexible terms.',
+  });
+
   return (
     <div>
       <PageHeader

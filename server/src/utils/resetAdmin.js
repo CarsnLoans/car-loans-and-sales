@@ -12,7 +12,7 @@ const resetAdmin = async () => {
       name: 'Admin',
       email: process.env.ADMIN_DEFAULT_EMAIL,
       password: process.env.ADMIN_DEFAULT_PASSWORD,
-      role: 'admin',
+      role: 'super_admin',
     });
 
     console.log('✅ Admin reset successfully');

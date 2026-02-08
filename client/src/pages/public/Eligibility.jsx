@@ -2,6 +2,7 @@ import { useState } from 'react';
 import PageHeader from '../../components/common/PageHeader';
 import Accordion from '../../components/common/Accordion';
 import { BadgeCheck, ClipboardList, FileText, ShieldCheck } from 'lucide-react';
+import usePageMeta from '../../hooks/usePageMeta';
 
 const tabs = [
   {
@@ -106,6 +107,11 @@ const faqs = [
 ];
 
 const Eligibility = () => {
+  usePageMeta({
+    title: 'Eligibility | Car Loans & Sales',
+    description: 'Check eligibility and documents required for used car loans.',
+  });
+
   return (
     <div>
       <PageHeader

@@ -3,9 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getLead, updateLead } from '../../services/leadService';
 import { getAdmins } from '../../services/adminService';
 import { LEAD_STATUSES } from '../../constants/data';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
 import Button from '../../components/common/Button';
 import toast from 'react-hot-toast';
+import Skeleton from '../../components/common/Skeleton';
+import { User, Mail, Phone, MapPin, ClipboardList, CalendarCheck, Clock4, BadgeCheck } from 'lucide-react';
 
 const LeadDetail = () => {
   const { id } = useParams();
@@ -74,8 +75,13 @@ const LeadDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" />
+      <div className="p-8 space-y-6">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Skeleton className="h-48" />
+          <Skeleton className="h-48" />
+        </div>
+        <Skeleton className="h-48" />
       </div>
     );
   }
@@ -89,44 +95,150 @@ const LeadDetail = () => {
   }
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Lead Details</h1>
-        <Button variant="outline" onClick={() => navigate('/admin/leads')}>
-          Back to Leads
-        </Button>
+    <div className="p-8 space-y-6">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <ClipboardList className="h-5 w-5" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold">Lead Details</h1>
+            <p className="text-gray-600">Review lead profile and update workflow.</p>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700">
+            <BadgeCheck className="h-4 w-4 text-primary" /> {lead.status}
+          </span>
+          <Button variant="outline" onClick={() => navigate('/admin/leads')}>
+            Back to Leads
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Personal Information</h2>
-          <div className="space-y-2 text-gray-700">
-            <p><strong>Name:</strong> {lead.firstName} {lead.lastName}</p>
-            <p><strong>Email:</strong> {lead.email}</p>
-            <p><strong>Phone:</strong> {lead.phone}</p>
-            <p><strong>City:</strong> {lead.city}</p>
-            <p><strong>State:</strong> {lead.state}</p>
-            <p><strong>Pincode:</strong> {lead.pincode}</p>
+        <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+          <h2 className="text-lg font-semibold mb-4">Personal Information</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700">
+            <div className="flex items-center gap-2">
+              <User className="h-4 w-4 text-primary" />
+              <div>
+                <p className="text-xs text-gray-500">Full Name</p>
+                <p className="font-medium">{lead.firstName} {lead.lastName}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-primary" />
+              <div>
+                <p className="text-xs text-gray-500">Email</p>
+                <p className="font-medium">{lead.email}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Phone className="h-4 w-4 text-primary" />
+              <div>
+                <p className="text-xs text-gray-500">Phone</p>
+                <p className="font-medium">{lead.phone}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-primary" />
+              <div>
+                <p className="text-xs text-gray-500">Location</p>
+                <p className="font-medium">{lead.city}, {lead.state} {lead.pincode}</p>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Loan Information</h2>
-          <div className="space-y-2 text-gray-700">
-            <p><strong>Loan Type:</strong> {lead.loanType}</p>
-            <p><strong>Status:</strong> {lead.status}</p>
-            <p><strong>Submitted:</strong> {new Date(lead.createdAt).toLocaleString()}</p>
-            <p><strong>Last Contacted:</strong> {lead.lastContactedAt ? new Date(lead.lastContactedAt).toLocaleString() : '—'}</p>
-            <p><strong>Next Follow-up:</strong> {lead.nextFollowUpAt ? new Date(lead.nextFollowUpAt).toLocaleDateString() : '—'}</p>
+        <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Loan Information</h2>
+            <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs text-gray-600">
+              <BadgeCheck className="h-3.5 w-3.5 text-primary" /> {lead.loanType}
+            </span>
+          </div>
+          <div className="space-y-3 text-gray-700">
+            <div className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
+              <span className="text-sm text-gray-500">Status</span>
+              <span className="text-sm font-semibold text-gray-900">{lead.status}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <CalendarCheck className="h-4 w-4 text-primary" /> Submitted {new Date(lead.createdAt).toLocaleString()}
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Clock4 className="h-4 w-4 text-primary" /> Last contacted {lead.lastContactedAt ? new Date(lead.lastContactedAt).toLocaleString() : '—'}
+            </div>
+            <div className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
+              <span className="text-sm text-gray-500">Next Follow-up</span>
+              <span className="text-sm font-semibold text-gray-900">
+                {lead.nextFollowUpAt ? new Date(lead.nextFollowUpAt).toLocaleDateString() : '—'}
+              </span>
+            </div>
             {lead.message && (
-              <p><strong>Message:</strong> {lead.message}</p>
+              <div className="rounded-lg border border-dashed border-gray-200 bg-white px-3 py-2 text-sm">
+                <span className="text-xs text-gray-500 block mb-1">Message</span>
+                <p className="text-gray-700">{lead.message}</p>
+              </div>
             )}
           </div>
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow mt-6">
-        <h2 className="text-xl font-semibold mb-4">Update Status</h2>
+      <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">Lead Timeline</h2>
+          <span className="text-xs text-gray-500">Latest updates</span>
+        </div>
+        <div className="space-y-4">
+          {[
+            {
+              label: 'Submitted',
+              value: new Date(lead.createdAt).toLocaleString(),
+              color: 'bg-primary',
+              bg: 'bg-primary/5',
+            },
+            {
+              label: 'Current Status',
+              value: lead.status,
+              sub: lead.assignedTo?.name ? `Assigned to ${lead.assignedTo.name}` : null,
+              color: 'bg-blue-500',
+              bg: 'bg-blue-500/5',
+            },
+            {
+              label: 'Last Contacted',
+              value: lead.lastContactedAt ? new Date(lead.lastContactedAt).toLocaleString() : '—',
+              color: 'bg-emerald-500',
+              bg: 'bg-emerald-500/5',
+            },
+            {
+              label: 'Next Follow-up',
+              value: lead.nextFollowUpAt ? new Date(lead.nextFollowUpAt).toLocaleDateString() : '—',
+              color: 'bg-amber-500',
+              bg: 'bg-amber-500/5',
+            },
+          ].map((item) => (
+            <div key={item.label} className="flex items-center gap-4">
+              <div className={`h-3 w-3 rounded-full ${item.color}`} />
+              <div className={`flex-1 rounded-xl border border-gray-100 ${item.bg} px-4 py-3`}>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-gray-700">{item.label}</p>
+                  <span className="text-xs text-gray-500">{item.value}</span>
+                </div>
+                {item.sub && (
+                  <p className="text-xs text-gray-500 mt-1">{item.sub}</p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">Update Status</h2>
+          <span className="text-xs text-gray-500">Save changes to notify the lead</span>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <select
             className="input-field"
@@ -168,14 +280,17 @@ const LeadDetail = () => {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow mt-6">
-        <h2 className="text-xl font-semibold mb-4">Notes</h2>
+      <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">Notes</h2>
+          <span className="text-xs text-gray-500">{lead.notes?.length || 0} entries</span>
+        </div>
         {lead.notes?.length ? (
-          <ul className="space-y-3">
+          <ul className="space-y-4">
             {lead.notes.map((n, index) => (
-              <li key={index} className="border-b pb-2">
-                <p className="text-gray-700">{n.text}</p>
-                <p className="text-xs text-gray-500">
+              <li key={index} className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+                <p className="text-gray-800 font-medium">{n.text}</p>
+                <p className="text-xs text-gray-500 mt-2">
                   {new Date(n.addedAt).toLocaleString()}
                 </p>
               </li>

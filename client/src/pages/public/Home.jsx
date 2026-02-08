@@ -4,6 +4,7 @@ import Accordion from '../../components/common/Accordion';
 import { Link } from 'react-router-dom';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
+import usePageMeta from '../../hooks/usePageMeta';
 import {
   Car,
   ClipboardList,
@@ -29,6 +30,11 @@ import {
 } from '../../constants/data';
 
 const Home = () => {
+  usePageMeta({
+    title: 'Car Loans & Sales | Home',
+    description: 'Get quick approvals, low interest rates, and flexible repayment options for your car loan.',
+  });
+
   const responsive = {
     superLargeDesktop: {
       breakpoint: { max: 4000, min: 3000 },

@@ -6,6 +6,7 @@ import { z } from 'zod';
 import useAuth from '../../hooks/useAuth';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
+import { ShieldCheck } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -36,11 +37,14 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-red-50 px-4">
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-lg shadow-lg p-8">
+        <div className="bg-white/90 backdrop-blur rounded-2xl shadow-xl p-8 border border-gray-100">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-primary">Admin Login</h1>
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <ShieldCheck className="h-6 w-6" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900">Admin Login</h1>
             <p className="text-gray-600 mt-2">Car Loans & Sales Dashboard</p>
           </div>
 
@@ -79,7 +83,7 @@ const AdminLogin = () => {
 
           <div className="mt-6 text-center text-sm text-gray-600">
             <p>Default credentials:</p>
-            <p className="font-mono bg-gray-50 p-2 rounded mt-2">
+            <p className="font-mono bg-gray-50 p-2 rounded-lg mt-2">
               admin@carloansandsales.com / admin123
             </p>
           </div>

@@ -11,6 +11,7 @@ import Button from '../../components/common/Button';
 import { LOAN_TYPES, INDIAN_STATES } from '../../constants/data';
 import { createLead } from '../../services/leadService';
 import { FileText, User, MapPin, MessageSquare } from 'lucide-react';
+import usePageMeta from '../../hooks/usePageMeta';
 
 const formSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -25,6 +26,11 @@ const formSchema = z.object({
 });
 
 const ApplyNow = () => {
+  usePageMeta({
+    title: 'Apply Now | Car Loans & Sales',
+    description: 'Submit your car loan application with quick approvals and minimal documentation.',
+  });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {

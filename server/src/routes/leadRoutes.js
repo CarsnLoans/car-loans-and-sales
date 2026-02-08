@@ -8,7 +8,7 @@ const {
   deleteLead,
   getStats,
 } = require('../controllers/leadController');
-const { protect } = require('../middleware/auth');
+const { protect, authorizeRoles } = require('../middleware/auth');
 const { body, validationResult } = require('express-validator');
 
 const router = express.Router();
@@ -44,10 +44,10 @@ router.post(
 
 // Protected admin routes
 router.get('/admin/leads', protect, getLeads);
-router.patch('/admin/leads/bulk', protect, bulkUpdateLeads);
+router.patch('/admin/leads/bulk', protect, authorizeRoles('admin', 'super_admin'), bulkUpdateLeads);
 router.get('/admin/leads/:id', protect, getLead);
 router.patch('/admin/leads/:id', protect, updateLead);
-router.delete('/admin/leads/:id', protect, deleteLead);
+router.delete('/admin/leads/:id', protect, authorizeRoles('admin', 'super_admin'), deleteLead);
 router.get('/admin/stats', protect, getStats);
 
 module.exports = router;

@@ -1,8 +1,14 @@
 import PageHeader from '../../components/common/PageHeader';
 import Accordion from '../../components/common/Accordion';
 import { Calculator, Info } from 'lucide-react';
+import usePageMeta from '../../hooks/usePageMeta';
 
 const InterestRates = () => {
+  usePageMeta({
+    title: 'Interest Rates | Car Loans & Sales',
+    description: 'View current used car loan interest rates and miscellaneous charges.',
+  });
+
   return (
     <div>
       <PageHeader

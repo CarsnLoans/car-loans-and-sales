@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -15,7 +15,10 @@ import AdminLogin from './pages/admin/AdminLogin';
 import Dashboard from './pages/admin/Dashboard';
 import Leads from './pages/admin/Leads';
 import LeadDetail from './pages/admin/LeadDetail';
+import AuditLogs from './pages/admin/AuditLogs';
+import EmailTemplates from './pages/admin/EmailTemplates';
 import AdminLayout from './components/admin/AdminLayout';
+import NotFound from './pages/NotFound';
 
 function App() {
   return (
@@ -40,10 +43,15 @@ function App() {
           </ProtectedRoute>
         }
       >
+        <Route index element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="leads" element={<Leads />} />
         <Route path="leads/:id" element={<LeadDetail />} />
+        <Route path="audit-logs" element={<AuditLogs />} />
+        <Route path="email-templates" element={<EmailTemplates />} />
       </Route>
+
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

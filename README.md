@@ -75,3 +75,17 @@ npm run start
 ### Notes
 - Ensure `CLIENT_URL` in server `.env` matches your deployed frontend URL.
 - Set `VITE_API_URL` to your deployed backend URL.
+
+## Admin Roles & Access
+
+Roles supported in the admin panel:
+- **super_admin**: Full access (manage admins, audit logs, email templates, lead bulk actions, deletions).
+- **admin**: Access to audit logs and email templates, lead bulk actions and deletions.
+
+The **default Super Admin** is created from these environment variables in `server/.env`:
+- `ADMIN_DEFAULT_EMAIL`
+- `ADMIN_DEFAULT_PASSWORD`
+
+Example (defaults):
+- Email: `admin@carloansandsales.com`
+- Password: `admin123`
