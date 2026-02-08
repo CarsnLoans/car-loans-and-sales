@@ -51,11 +51,11 @@ const Header = () => {
 
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
-          <Link to="/" className="text-2xl font-bold text-primary">
-            Car Loans & Sales
+          <Link to="/" className="flex items-center gap-2">
+            <img src="/logo.svg" alt="Car Loans & Sales" className="h-12 w-auto" />
           </Link>
 
-          <nav className="hidden md:flex space-x-6">
+          <nav className="hidden md:flex items-center gap-6">
             {navItems.map((item) => (
               <Link
                 key={item.path}
@@ -67,7 +67,7 @@ const Header = () => {
                 {item.label}
               </Link>
             ))}
-            <Link to="/apply" className="btn-primary !py-2 !px-4 text-sm">
+            <Link to="/apply" className="btn-primary !py-2 !px-4 text-sm inline-flex items-center">
               Apply Now
             </Link>
           </nav>
