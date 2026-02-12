@@ -26,11 +26,11 @@ JWT_EXPIRE=1h
 REFRESH_TOKEN_SECRET=change-this-refresh-secret
 REFRESH_TOKEN_EXPIRE=30d
 POSTMARK_API_KEY=your-postmark-key
-ADMIN_EMAIL=carloansandsales123@gmail.com
-FROM_EMAIL=noreply@carloansandsales.com
+ADMIN_EMAIL=super-admin-email
+FROM_EMAIL=your-no-reply-email-to-send-mails
 CLIENT_URL=http://localhost:5173
-ADMIN_DEFAULT_EMAIL=carloansandsales123@gmail.com
-ADMIN_DEFAULT_PASSWORD=admin123
+ADMIN_DEFAULT_EMAIL=your-super-admin-email
+ADMIN_DEFAULT_PASSWORD=your-super-admin-password
 ```
 
 ### Frontend (client/.env)
