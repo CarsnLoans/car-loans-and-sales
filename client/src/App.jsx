@@ -19,6 +19,7 @@ import AuditLogs from './pages/admin/AuditLogs';
 import EmailTemplates from './pages/admin/EmailTemplates';
 import ManageUsers from './pages/admin/ManageUsers';
 import ChangePassword from './pages/admin/ChangePassword';
+import Settings from './pages/admin/Settings';
 import AdminLayout from './components/admin/AdminLayout';
 import NotFound from './pages/NotFound';
 
@@ -53,6 +54,7 @@ function App() {
         <Route path="change-password" element={<ChangePassword />} />
         <Route path="audit-logs" element={<AuditLogs />} />
         <Route path="email-templates" element={<EmailTemplates />} />
+        <Route path="settings" element={<Settings />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />

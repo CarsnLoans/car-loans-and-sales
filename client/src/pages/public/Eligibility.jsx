@@ -144,9 +144,13 @@ const Eligibility = () => {
         title="Eligibility"
         subtitle="Eligibility and Documents Required for Used Car Loan"
         className="bg-gradient-to-r from-primary to-red-700"
+        breadcrumbs={[
+          { label: 'Home', to: '/' },
+          { label: 'Eligibility' },
+        ]}
       />
 
-      <section className="py-16 px-4">
+      <section className="py-16 px-4 reveal" data-reveal>
         <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-lg p-8 md:p-12">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div>
@@ -203,7 +207,7 @@ const Eligibility = () => {
         </div>
       </section>
 
-      <section className="py-16 px-4 bg-gray-50">
+      <section className="py-16 px-4 bg-gray-50 reveal" data-reveal>
         <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-lg p-6 md:p-10">
           <Tabs />
         </div>

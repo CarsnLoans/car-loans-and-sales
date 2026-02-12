@@ -16,6 +16,8 @@ export const LOAN_TYPES = [
   'Auto Loan Top Up',
   'Refinance',
   'Balance Transfer',
+  'Personal Loan',
+  'Home Loan',
 ];
 
 export const LEAD_STATUSES = [
@@ -60,7 +62,7 @@ export const INDIAN_STATES = [
 ];
 
 export const CONTACT_INFO = {
-  phone: '+91 9686-870-536',
+  phone: '+91 8660516762',
   alternatePhone: '+91 8197596707',
   email: 'info@carloansandsales.com',
 };

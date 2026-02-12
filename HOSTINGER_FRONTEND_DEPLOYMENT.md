@@ -37,7 +37,7 @@ This creates a `dist/` folder with optimized production files.
 
 ### Environment Variables to Add:
 ```
-VITE_API_URL=https://car-loans-and-sales.onrender.com/api
+VITE_API_URL=https://your-api.onrender.com/api
 NODE_ENV=production
 ```
 
@@ -92,12 +92,12 @@ Ensure your frontend is pointing to the correct backend:
 
 ### In `client/src/constants/config.js`:
 ```javascript
-const API_BASE_URL = 'https://car-loans-and-sales.onrender.com/api';
+const API_BASE_URL = 'https://your-api.onrender.com/api';
 ```
 
 Or use environment variable:
 ```javascript
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://car-loans-and-sales.onrender.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://your-api.onrender.com/api';
 ```
 
 ## Step 6: SSL/HTTPS Setup
@@ -153,7 +153,7 @@ If using Git deployment:
 ## Environment Variables (Hostinger)
 Go to **Advanced** → **Environment Variables** and add:
 ```
-VITE_API_URL=https://car-loans-and-sales.onrender.com/api
+VITE_API_URL=https://your-api.onrender.com/api
 NODE_ENV=production
 ```
 

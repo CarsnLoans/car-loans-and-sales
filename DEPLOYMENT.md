@@ -29,26 +29,27 @@ Once the web service is created, go to **Environment** tab and add these variabl
 | Variable | Value | Notes |
 |----------|-------|-------|
 | `NODE_ENV` | `production` | |
-| `MONGODB_URI` | Your MongoDB connection string | Keep from .env |
+| `MONGODB_URI` | Your MongoDB Atlas connection string | Example: `mongodb+srv://username:password@cluster.mongodb.net/dbname` |
 | `JWT_SECRET` | Generate a secure random string | Use strong secret (min 32 chars) |
 | `JWT_EXPIRE` | `7d` | |
 | `REFRESH_TOKEN_SECRET` | Generate a different secure random string | |
 | `REFRESH_TOKEN_EXPIRE` | `30d` | |
-| `SMTP_HOST` | `smtp.hostinger.com` | From your .env |
-| `SMTP_PORT` | `465` | |
-| `SMTP_SECURE` | `true` | |
-| `SMTP_USER` | Your email (e.g., noreply@carloansandsales.com) | |
-| `SMTP_PASS` | Your email password | Stored securely |
-| `COMPANY_NAME` | `Car Loans & Sales` | |
-| `SERVER_URL` | Your Render URL (e.g., `https://car-loans-sales-api.onrender.com`) | Update after deployment |
-| `EMAIL_LOGO_URL` | `https://car-loans-sales-api.onrender.com/assets/logo.svg` | Or use your domain |
-| `SUPPORT_EMAIL` | `info@carloansandsales.com` | |
-| `SUPPORT_PHONE` | `+91 9686-870-536` | |
-| `ADMIN_EMAIL` | `carloansandsales123@gmail.com` | |
-| `FROM_EMAIL` | `noreply@carloansandsales.com` | |
-| `CLIENT_URL` | Your frontend URL | e.g., `https://yourdomain.com` (update after frontend deployment) |
-| `ADMIN_DEFAULT_EMAIL` | `carloansandsales123@gmail.com` | |
-| `ADMIN_DEFAULT_PASSWORD` | Your secure password | Change on first login |
+| `SMTP_HOST` | Your SMTP host | Example: `smtp.gmail.com` or `smtp.hostinger.com` |
+| `SMTP_PORT` | `465` or `587` | Depends on your email provider |
+| `SMTP_SECURE` | `true` (for 465) or `false` (for 587) | |
+| `SMTP_USER` | Your email address | Example: `noreply@yourdomain.com` |
+| `SMTP_PASS` | Your email password | Store securely, do not commit |
+| `COMPANY_NAME` | Your company name | Example: `Car Loans & Sales` |
+| `SERVER_URL` | Your Render URL | Example: `https://your-api.onrender.com` |
+| `EMAIL_LOGO_URL` | Your logo URL | Example: `https://your-api.onrender.com/assets/logo.svg` |
+| `SUPPORT_EMAIL` | Support email | Example: `support@yourdomain.com` |
+| `SUPPORT_PHONE` | Support phone | Example: `+91 XXXXXXXXXX` |
+| `CONTACT_PHONE` | Contact phone | Example: `+91 XXXXXXXXXX` |
+| `ADMIN_EMAIL` | Admin email | Example: `admin@yourdomain.com` |
+| `FROM_EMAIL` | Sender email | Example: `noreply@yourdomain.com` |
+| `CLIENT_URL` | Your frontend URL | Example: `https://yourdomain.com` |
+| `ADMIN_DEFAULT_EMAIL` | Default admin email | Example: `admin@yourdomain.com` |
+| `ADMIN_DEFAULT_PASSWORD` | Default admin password | Must be changed on first login |
 
 ## Step 5: Verify Deployment
 1. Check **Logs** in Render dashboard

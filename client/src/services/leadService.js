@@ -36,6 +36,12 @@ export const deleteLead = async (id) => {
   return response.data;
 };
 
+// Bulk delete leads (super admin only)
+export const bulkDeleteLeads = async (payload) => {
+  const response = await api.delete('/leads/admin/leads/bulk', { data: payload });
+  return response.data;
+};
+
 // Get dashboard stats (admin)
 export const getStats = async () => {
   const response = await api.get('/leads/admin/stats');

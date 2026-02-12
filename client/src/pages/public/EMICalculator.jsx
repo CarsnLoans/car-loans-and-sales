@@ -11,32 +11,37 @@ const EMICalculator = () => {
     description: 'Calculate your monthly EMI for car loans with our easy calculator.',
   });
 
-  const [principal, setPrincipal] = useState(0);
-  const [interestRate, setInterestRate] = useState(0);
-  const [tenure, setTenure] = useState(0);
+  const [principal, setPrincipal] = useState('');
+  const [interestRate, setInterestRate] = useState('');
+  const [tenure, setTenure] = useState('');
   const [emi, setEmi] = useState('');
 
   const handleCalculate = () => {
-    const monthlyInterestRate = interestRate / 1200;
-    const months = tenure * 12;
-    if (!principal || !interestRate || !tenure) {
+    const principalNum = Number(principal);
+    const interestRateNum = Number(interestRate);
+    const tenureNum = Number(tenure);
+    
+    if (!principalNum || !interestRateNum || !tenureNum) {
       setEmi('');
       return;
     }
+    
+    const monthlyInterestRate = interestRateNum / 1200;
+    const months = tenureNum * 12;
     const emiValue =
-      (principal * monthlyInterestRate * Math.pow(1 + monthlyInterestRate, months)) /
+      (principalNum * monthlyInterestRate * Math.pow(1 + monthlyInterestRate, months)) /
       (Math.pow(1 + monthlyInterestRate, months) - 1);
     setEmi(emiValue.toFixed(2));
   };
 
-  const months = tenure * 12;
+  const months = Number(tenure) * 12;
   const totalPayable = emi ? (Number(emi) * months).toFixed(2) : '';
   const totalInterest = emi ? (Number(totalPayable) - Number(principal)).toFixed(2) : '';
 
   const schedule = useMemo(() => {
     if (!emi || !principal || !interestRate || !tenure) return [];
     const rows = [];
-    const monthlyRate = interestRate / 1200;
+    const monthlyRate = Number(interestRate) / 1200;
     const monthlyEmi = Number(emi);
     let balance = Number(principal);
 
@@ -96,9 +101,13 @@ const EMICalculator = () => {
         title="EMI Calculator"
         subtitle="Calculate your monthly EMI"
         className="bg-gradient-to-r from-primary to-red-700"
+        breadcrumbs={[
+          { label: 'Home', to: '/' },
+          { label: 'EMI Calculator' },
+        ]}
       />
 
-      <section className="py-16 px-4">
+      <section className="py-16 px-4 reveal" data-reveal>
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Card className="border border-gray-100 shadow-xl lg:col-span-2">
             <div className="flex items-center justify-between mb-6">
@@ -125,7 +134,7 @@ const EMICalculator = () => {
                     type="number"
                     className="input-field"
                     value={principal}
-                    onChange={(e) => setPrincipal(Number(e.target.value))}
+                    onChange={(e) => setPrincipal(e.target.value)}
                     placeholder="Enter loan amount"
                   />
                 </div>
@@ -136,7 +145,7 @@ const EMICalculator = () => {
                   type="number"
                   className="input-field"
                   value={interestRate}
-                  onChange={(e) => setInterestRate(Number(e.target.value))}
+                  onChange={(e) => setInterestRate(e.target.value)}
                   placeholder="e.g. 9.5"
                 />
               </div>
@@ -146,7 +155,7 @@ const EMICalculator = () => {
                   type="number"
                   className="input-field"
                   value={tenure}
-                  onChange={(e) => setTenure(Number(e.target.value))}
+                  onChange={(e) => setTenure(e.target.value)}
                   placeholder="e.g. 5"
                 />
               </div>

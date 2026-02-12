@@ -1,16 +1,27 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getLeads, bulkUpdateLeads } from '../../services/leadService';
-import { LEAD_STATUSES, LOAN_TYPES } from '../../constants/data';
+import { getLeads, bulkUpdateLeads, bulkDeleteLeads } from '../../services/leadService';
+import { LEAD_STATUSES } from '../../constants/data';
+import useSettings from '../../hooks/useSettings';
+import useAuth from '../../hooks/useAuth';
 import Button from '../../components/common/Button';
+import ConfirmDialog from '../../components/common/ConfirmDialog';
+import PromptDialog from '../../components/common/PromptDialog';
 import toast from 'react-hot-toast';
 import Skeleton from '../../components/common/Skeleton';
-import { Users, Filter, Download, CheckSquare } from 'lucide-react';
+import { Users, Filter, Download, CheckSquare, Trash2 } from 'lucide-react';
 
 const Leads = () => {
+  const { settings } = useSettings();
+  const { admin } = useAuth();
+  const LOAN_TYPES = settings.loanTypes || [];
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [exportFileName, setExportFileName] = useState('');
   const hasLoadedRef = useRef(false);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
@@ -22,8 +33,23 @@ const Leads = () => {
     status: '',
     loanType: '',
     followUp: '',
+    startDate: '',
+    endDate: '',
     sortBy: '-createdAt',
   });
+
+  const clearAllFilters = () => {
+    setFilters({
+      search: '',
+      status: '',
+      loanType: '',
+      followUp: '',
+      startDate: '',
+      endDate: '',
+      sortBy: '-createdAt',
+    });
+    setPage(1);
+  };
 
   const fetchLeads = useCallback(async () => {
     if (!hasLoadedRef.current) {
@@ -39,6 +65,8 @@ const Leads = () => {
         status: filters.status,
         loanType: filters.loanType,
         followUp: filters.followUp,
+        startDate: filters.startDate,
+        endDate: filters.endDate,
         sortBy: filters.sortBy,
       });
       setLeads(data.leads || []);
@@ -117,7 +145,31 @@ const Leads = () => {
     }
   };
 
-  const exportCsv = () => {
+  const handleBulkDelete = () => {
+    if (selectedIds.length === 0) {
+      toast.error('Select at least one lead to delete');
+      return;
+    }
+    setShowDeleteDialog(true);
+  };
+
+  const confirmBulkDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await bulkDeleteLeads({ ids: selectedIds });
+      toast.success(`${selectedIds.length} lead(s) deleted successfully`);
+      setSelectedIds([]);
+      setShowDeleteDialog(false);
+      fetchLeads();
+    } catch (error) {
+      toast.error('Failed to delete leads');
+      console.error('Bulk delete error:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const exportCsv = (fileNameInput) => {
     if (leads.length === 0) {
       toast.error('No leads to export');
       return;
@@ -147,14 +199,31 @@ const Leads = () => {
       .map((row) => row.map((field) => `"${String(field).replace(/"/g, '""')}"`).join(','))
       .join('\n');
 
+    const safeName = fileNameInput?.trim();
+    const fileName = safeName ? `${safeName}.csv` : `leads-${Date.now()}.csv`;
+
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `leads-${Date.now()}.csv`);
+    link.setAttribute('download', fileName);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleExportClick = () => {
+    if (leads.length === 0) {
+      toast.error('No leads to export');
+      return;
+    }
+    setShowExportDialog(true);
+  };
+
+  const confirmExport = () => {
+    exportCsv(exportFileName);
+    setShowExportDialog(false);
+    setExportFileName('');
   };
 
   if (loading) {
@@ -182,288 +251,352 @@ const Leads = () => {
   }
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 space-y-6">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <Users className="h-5 w-5" />
+      <div className="p-4 md:p-6 lg:p-8 space-y-6">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <Users className="h-5 w-5" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold">Leads</h1>
+              <p className="text-gray-600">Manage, segment, and follow up efficiently.</p>
+            </div>
+            {isRefreshing && (
+              <span className="ml-3 inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-500">
+                <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                Updating
+              </span>
+            )}
           </div>
-          <div>
-            <h1 className="text-3xl font-bold">Leads</h1>
-            <p className="text-gray-600">Manage, segment, and follow up efficiently.</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm text-gray-600 shadow-sm">
+              Total: <span className="font-semibold text-gray-900">{leads.length}</span>
+            </div>
+            <Button variant="secondary" onClick={handleExportClick}>
+              <span className="inline-flex items-center gap-2">
+                <Download className="h-4 w-4" /> Export CSV
+              </span>
+            </Button>
           </div>
-          {isRefreshing && (
-            <span className="ml-3 inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-500">
-              <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-              Updating
-            </span>
-          )}
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm text-gray-600 shadow-sm">
-            Total: <span className="font-semibold text-gray-900">{leads.length}</span>
-          </div>
-          <Button variant="secondary" onClick={exportCsv}>
-            <span className="inline-flex items-center gap-2">
-              <Download className="h-4 w-4" /> Export CSV
-            </span>
-          </Button>
-        </div>
-      </div>
 
-      {/* Filters */}
-      <div className="bg-white p-5 rounded-2xl shadow-md border border-gray-100">
-        <div className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-4">
-          <Filter className="h-4 w-4 text-primary" /> Filters
+        {/* Filters */}
+        <div className="bg-white p-5 rounded-2xl shadow-md border border-gray-100">
+          <div className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-4">
+            <Filter className="h-4 w-4 text-primary" /> Filters
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
+            <input
+              type="text"
+              placeholder="Search by name, email, phone"
+              className="input-field"
+              value={filters.search}
+              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+            />
+            <select
+              className="input-field"
+              value={filters.status}
+              onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+            >
+              <option value="">All Status</option>
+              {LEAD_STATUSES.map((status) => (
+                <option key={status.value} value={status.value}>
+                  {status.label}
+                </option>
+              ))}
+            </select>
+            <select
+              className="input-field"
+              value={filters.loanType}
+              onChange={(e) => setFilters({ ...filters, loanType: e.target.value })}
+            >
+              <option value="">All Loan Types</option>
+              {LOAN_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+            <select
+              className="input-field"
+              value={filters.followUp}
+              onChange={(e) => setFilters({ ...filters, followUp: e.target.value })}
+            >
+              <option value="">All Follow-ups</option>
+              <option value="overdue">Overdue</option>
+              <option value="today">Today</option>
+              <option value="upcoming">Upcoming</option>
+              <option value="none">No Follow-up</option>
+            </select>
+            <select
+              className="input-field"
+              value={filters.sortBy}
+              onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
+            >
+              <option value="-createdAt">Newest</option>
+              <option value="createdAt">Oldest</option>
+              <option value="status">Status (A-Z)</option>
+              <option value="-status">Status (Z-A)</option>
+              <option value="nextFollowUpAt">Follow-up Date</option>
+            </select>
+            <input
+              type="date"
+              className="input-field"
+              value={filters.startDate}
+              onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
+            />
+            <input
+              type="date"
+              className="input-field"
+              value={filters.endDate}
+              onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
+            />
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            {LEAD_STATUSES.map((status) => (
+              <button
+                key={status.value}
+                className={`px-3 py-1 rounded-full text-sm border transition ${filters.status === status.value
+                    ? 'bg-primary text-white border-primary shadow-sm'
+                    : 'text-gray-700 border-gray-200 hover:border-primary'
+                  }`}
+                onClick={() => setFilters({ ...filters, status: status.value })}
+              >
+                {status.label}
+              </button>
+            ))}
+            <button
+              className="px-3 py-1 rounded-full text-sm border border-amber-200 bg-amber-50 text-amber-700 hover:border-amber-300 hover:bg-amber-100"
+              onClick={() => setFilters({ ...filters, status: '' })}
+            >
+              Clear Status
+            </button>
+            <button
+              className="px-3 py-1 rounded-full text-sm border border-amber-200 bg-amber-50 text-amber-700 hover:border-amber-300 hover:bg-amber-100"
+              onClick={clearAllFilters}
+            >
+              Clear All Filters
+            </button>
+          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <input
-            type="text"
-            placeholder="Search by name, email, phone"
-            className="input-field"
-            value={filters.search}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-          />
+
+        {/* Bulk Actions */}
+        <div className="bg-white p-5 rounded-2xl shadow-md border border-gray-100 flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+            <CheckSquare className="h-4 w-4 text-primary" /> Bulk actions
+          </div>
           <select
-            className="input-field"
-            value={filters.status}
-            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+            className="input-field max-w-xs"
+            value={bulkStatus}
+            onChange={(e) => setBulkStatus(e.target.value)}
           >
-            <option value="">All Status</option>
+            <option value="">Bulk Status</option>
             {LEAD_STATUSES.map((status) => (
               <option key={status.value} value={status.value}>
                 {status.label}
               </option>
             ))}
           </select>
-          <select
-            className="input-field"
-            value={filters.loanType}
-            onChange={(e) => setFilters({ ...filters, loanType: e.target.value })}
-          >
-            <option value="">All Loan Types</option>
-            {LOAN_TYPES.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-          <select
-            className="input-field"
-            value={filters.followUp}
-            onChange={(e) => setFilters({ ...filters, followUp: e.target.value })}
-          >
-            <option value="">All Follow-ups</option>
-            <option value="overdue">Overdue</option>
-            <option value="today">Today</option>
-            <option value="upcoming">Upcoming</option>
-            <option value="none">No Follow-up</option>
-          </select>
-          <select
-            className="input-field"
-            value={filters.sortBy}
-            onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
-          >
-            <option value="-createdAt">Newest</option>
-            <option value="createdAt">Oldest</option>
-            <option value="status">Status (A-Z)</option>
-            <option value="-status">Status (Z-A)</option>
-            <option value="nextFollowUpAt">Follow-up Date</option>
-          </select>
-        </div>
-
-        <div className="mt-4 flex flex-wrap gap-2">
-          {LEAD_STATUSES.map((status) => (
-            <button
-              key={status.value}
-              className={`px-3 py-1 rounded-full text-sm border transition ${
-                filters.status === status.value
-                  ? 'bg-primary text-white border-primary shadow-sm'
-                  : 'text-gray-700 border-gray-200 hover:border-primary'
-              }`}
-              onClick={() => setFilters({ ...filters, status: status.value })}
+          <input
+            type="date"
+            className="input-field max-w-xs"
+            value={bulkFollowUpAt}
+            onChange={(e) => setBulkFollowUpAt(e.target.value)}
+          />
+          <Button onClick={handleBulkUpdate}>Apply to Selected</Button>
+          {admin?.role === 'super_admin' && (
+            <Button
+              onClick={handleBulkDelete}
+              disabled={selectedIds.length === 0}
+              className="bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
             >
-              {status.label}
-            </button>
-          ))}
-          <button
-            className="px-3 py-1 rounded-full text-sm border text-gray-700 border-gray-200 hover:border-primary"
-            onClick={() => setFilters({ ...filters, status: '' })}
-          >
-            Clear Status
-          </button>
-        </div>
-      </div>
-
-      {/* Bulk Actions */}
-      <div className="bg-white p-5 rounded-2xl shadow-md border border-gray-100 flex flex-wrap items-center gap-4">
-        <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-          <CheckSquare className="h-4 w-4 text-primary" /> Bulk actions
-        </div>
-        <select
-          className="input-field max-w-xs"
-          value={bulkStatus}
-          onChange={(e) => setBulkStatus(e.target.value)}
-        >
-          <option value="">Bulk Status</option>
-          {LEAD_STATUSES.map((status) => (
-            <option key={status.value} value={status.value}>
-              {status.label}
-            </option>
-          ))}
-        </select>
-        <input
-          type="date"
-          className="input-field max-w-xs"
-          value={bulkFollowUpAt}
-          onChange={(e) => setBulkFollowUpAt(e.target.value)}
-        />
-        <Button onClick={handleBulkUpdate}>Apply to Selected</Button>
-        <Button variant="outline" onClick={() => setSelectedIds([])}>Clear Selection</Button>
-      </div>
-
-      {/* Leads Table */}
-      <div className="bg-white rounded-2xl shadow-md border border-gray-100">
-        {/* Mobile Cards */}
-        <div className="divide-y divide-gray-100 md:hidden">
-          {leads.map((lead) => (
-            <div key={lead._id} className="p-4 space-y-3">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm text-gray-500">Lead</p>
-                  <p className="text-base font-semibold text-gray-900">
-                    {lead.firstName} {lead.lastName}
-                  </p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={selectedIds.includes(lead._id)}
-                  onChange={() => toggleSelect(lead._id)}
-                />
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(lead.status)}`}>
-                  {lead.status}
-                </span>
-                <span className="text-xs text-gray-500">
-                  {lead.loanType}
-                </span>
-                {isOverdue(lead) && (
-                  <span className="text-xs text-red-600 font-semibold">Overdue</span>
+              <span className="inline-flex items-center gap-2">
+                <Trash2 className="h-4 w-4" />
+                Delete Selected
+                {selectedIds.length > 0 && (
+                  <span className="ml-1 rounded-full bg-red-200/70 px-2 py-0.5 text-xs font-semibold text-red-800">
+                    {selectedIds.length}
+                  </span>
                 )}
-              </div>
-              <div className="text-sm text-gray-600 space-y-1">
-                <p>{lead.email}</p>
-                <p>{lead.phone}</p>
-                <p>Next follow-up: {lead.nextFollowUpAt ? new Date(lead.nextFollowUpAt).toLocaleDateString() : '—'}</p>
-                <p>Created: {new Date(lead.createdAt).toLocaleDateString()}</p>
-              </div>
-              <div>
-                <Link
-                  to={`/admin/leads/${lead._id}`}
-                  className="text-primary font-semibold hover:underline"
-                >
-                  View Details
-                </Link>
-              </div>
-            </div>
-          ))}
-          {leads.length === 0 && (
-            <div className="text-center py-8 text-gray-500">No leads found</div>
+              </span>
+            </Button>
           )}
+          <Button variant="outline" onClick={() => setSelectedIds([])}>Clear Selection</Button>
         </div>
 
-        {/* Desktop Table */}
-        <div className="hidden md:block overflow-x-auto">
-          <table className="min-w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Phone</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Loan Type</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Next Follow-up</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {leads.map((lead) => (
-                <tr key={lead._id} className="hover:bg-gray-50/70 transition">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(lead._id)}
-                      onChange={() => toggleSelect(lead._id)}
-                    />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                    {lead.firstName} {lead.lastName}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{lead.email}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{lead.phone}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{lead.loanType}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(lead.status)}`}>
-                      {lead.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {lead.nextFollowUpAt ? new Date(lead.nextFollowUpAt).toLocaleDateString() : '—'}
-                    {isOverdue(lead) && (
-                      <span className="ml-2 text-xs text-red-600 font-semibold">Overdue</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(lead.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <Link
-                      to={`/admin/leads/${lead._id}`}
-                      className="text-primary font-semibold hover:underline"
-                    >
-                      View
-                    </Link>
-                  </td>
+        {/* Delete Confirmation Dialog */}
+        <ConfirmDialog
+          isOpen={showDeleteDialog}
+          title="Delete Leads"
+          message={`Are you sure you want to permanently delete ${selectedIds.length} lead(s)? This action cannot be undone and will be logged in audit history.`}
+          confirmText="Delete"
+          cancelText="Cancel"
+          isDangerous={true}
+          isLoading={isDeleting}
+          onConfirm={confirmBulkDelete}
+          onCancel={() => setShowDeleteDialog(false)}
+        />
+
+        <PromptDialog
+          isOpen={showExportDialog}
+          title="Export CSV"
+          message="Enter a file name (optional). If left blank, a default name will be used."
+          placeholder="e.g., leads-feb-2026"
+          value={exportFileName}
+          onChange={setExportFileName}
+          confirmText="Export"
+          cancelText="Cancel"
+          onConfirm={confirmExport}
+          onCancel={() => {
+            setShowExportDialog(false);
+            setExportFileName('');
+          }}
+        />
+
+        {/* Leads Table */}
+        <div className="bg-white rounded-2xl shadow-md border border-gray-100">
+          {/* Mobile Cards */}
+          <div className="divide-y divide-gray-100 md:hidden">
+            {leads.map((lead) => (
+              <div key={lead._id} className="p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm text-gray-500">Lead</p>
+                    <p className="text-base font-semibold text-gray-900">
+                      {lead.firstName} {lead.lastName}
+                    </p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(lead._id)}
+                    onChange={() => toggleSelect(lead._id)}
+                  />
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(lead.status)}`}>
+                    {lead.status}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {lead.loanType}
+                  </span>
+                  {isOverdue(lead) && (
+                    <span className="text-xs text-red-600 font-semibold">Overdue</span>
+                  )}
+                </div>
+                <div className="text-sm text-gray-600 space-y-1">
+                  <p>{lead.email}</p>
+                  <p>{lead.phone}</p>
+                  <p>Next follow-up: {lead.nextFollowUpAt ? new Date(lead.nextFollowUpAt).toLocaleDateString() : '—'}</p>
+                  <p>Created: {new Date(lead.createdAt).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <Link
+                    to={`/admin/leads/${lead._id}`}
+                    className="text-primary font-semibold hover:underline"
+                  >
+                    View Details
+                  </Link>
+                </div>
+              </div>
+            ))}
+            {leads.length === 0 && (
+              <div className="text-center py-8 text-gray-500">No leads found</div>
+            )}
+          </div>
+
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="min-w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Phone</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Loan Type</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Next Follow-up</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {leads.map((lead) => (
+                  <tr key={lead._id} className="hover:bg-gray-50/70 transition">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(lead._id)}
+                        onChange={() => toggleSelect(lead._id)}
+                      />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                      {lead.firstName} {lead.lastName}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{lead.email}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{lead.phone}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{lead.loanType}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(lead.status)}`}>
+                        {lead.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {lead.nextFollowUpAt ? new Date(lead.nextFollowUpAt).toLocaleDateString() : '—'}
+                      {isOverdue(lead) && (
+                        <span className="ml-2 text-xs text-red-600 font-semibold">Overdue</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(lead.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <Link
+                        to={`/admin/leads/${lead._id}`}
+                        className="text-primary font-semibold hover:underline"
+                      >
+                        View
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
 
-          {leads.length === 0 && (
-            <div className="text-center py-8 text-gray-500">No leads found</div>
-          )}
+            {leads.length === 0 && (
+              <div className="text-center py-8 text-gray-500">No leads found</div>
+            )}
+          </div>
         </div>
+
+        {/* Pagination */}
+        {pages > 1 && (
+          <div className="mt-6 flex justify-center gap-2">
+            <button
+              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+              disabled={page === 1}
+              className="btn-outline text-sm disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <span className="px-4 py-2 text-gray-700">
+              Page {page} of {pages}
+            </span>
+            <button
+              onClick={() => setPage((prev) => Math.min(prev + 1, pages))}
+              disabled={page === pages}
+              className="btn-outline text-sm disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
-
-      {/* Pagination */}
-      {pages > 1 && (
-        <div className="mt-6 flex justify-center gap-2">
-          <button
-            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-            disabled={page === 1}
-            className="btn-outline text-sm disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <span className="px-4 py-2 text-gray-700">
-            Page {page} of {pages}
-          </span>
-          <button
-            onClick={() => setPage((prev) => Math.min(prev + 1, pages))}
-            disabled={page === pages}
-            className="btn-outline text-sm disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
-      )}
-    </div>
-  );
+    );
 };
 
 export default Leads;
+

@@ -6,6 +6,7 @@ const {
   updateLead,
   bulkUpdateLeads,
   deleteLead,
+  bulkDeleteLeads,
   getStats,
 } = require('../controllers/leadController');
 const { protect, authorizeRoles } = require('../middleware/auth');
@@ -45,6 +46,7 @@ router.post(
 // Protected admin routes
 router.get('/admin/leads', protect, getLeads);
 router.patch('/admin/leads/bulk', protect, authorizeRoles('admin', 'manager', 'super_admin'), bulkUpdateLeads);
+router.delete('/admin/leads/bulk', protect, authorizeRoles('super_admin'), bulkDeleteLeads);
 router.get('/admin/leads/:id', protect, getLead);
 router.patch('/admin/leads/:id', protect, updateLead);
 router.delete('/admin/leads/:id', protect, authorizeRoles('admin', 'super_admin'), deleteLead);

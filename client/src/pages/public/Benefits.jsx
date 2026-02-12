@@ -24,9 +24,13 @@ const Benefits = () => {
         title="Benefits For You"
         subtitle="Know about used car loan benefits"
         className="bg-gradient-to-r from-primary to-red-700"
+        breadcrumbs={[
+          { label: 'Home', to: '/' },
+          { label: 'Benefits' },
+        ]}
       />
 
-      <section className="py-20 px-4">
+      <section className="py-20 px-4 reveal" data-reveal>
         <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg p-8 md:p-12">
           <p className="text-sm font-semibold uppercase tracking-widest text-primary text-center">Overview</p>
           <h2 className="text-3xl md:text-4xl font-extrabold text-center text-gray-900">What is a Used Car Loan?</h2>
@@ -51,7 +55,7 @@ const Benefits = () => {
         </div>
       </section>
 
-      <section className="py-20 px-4 bg-gray-50">
+      <section className="py-20 px-4 bg-gray-50 reveal" data-reveal>
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           <div className="lg:col-span-5">
             <div className="h-full rounded-2xl bg-gradient-to-br from-primary to-red-700 text-white p-8 md:p-10 shadow-xl">

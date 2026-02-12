@@ -15,9 +15,13 @@ const InterestRates = () => {
         title="Interest Rates"
         subtitle="Know the current used car loan interest rates"
         className="bg-gradient-to-r from-primary to-red-700"
+        breadcrumbs={[
+          { label: 'Home', to: '/' },
+          { label: 'Interest Rates' },
+        ]}
       />
 
-      <section className="py-16 px-4">
+      <section className="py-16 px-4 reveal" data-reveal>
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-7 bg-white rounded-2xl shadow-lg p-8 md:p-12">
             <h2 className="text-3xl font-bold">What are the Current Used Car Loan Interest Rates?</h2>
@@ -51,7 +55,7 @@ const InterestRates = () => {
         </div>
       </section>
 
-      <section className="py-16 px-4 bg-gray-50">
+      <section className="py-16 px-4 bg-gray-50 reveal" data-reveal>
         <div className="max-w-5xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-6">Miscellaneous Charges</h2>
           <div className="overflow-x-auto bg-white rounded-2xl shadow-lg">

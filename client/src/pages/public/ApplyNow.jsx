@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -8,10 +8,12 @@ import Input from '../../components/common/Input';
 import Select from '../../components/common/Select';
 import Textarea from '../../components/common/Textarea';
 import Button from '../../components/common/Button';
-import { LOAN_TYPES, INDIAN_STATES } from '../../constants/data';
+import { INDIAN_STATES } from '../../constants/data';
 import { createLead } from '../../services/leadService';
 import { FileText, User, MapPin, MessageSquare } from 'lucide-react';
 import usePageMeta from '../../hooks/usePageMeta';
+import useSettings from '../../hooks/useSettings';
+import { useSearchParams } from 'react-router-dom';
 
 const formSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -26,21 +28,74 @@ const formSchema = z.object({
 });
 
 const ApplyNow = () => {
+  const { settings = {} } = useSettings();
+  const [searchParams] = useSearchParams();
+  const LOAN_TYPES = settings.loanTypes || [
+    'New Car Loan',
+    'Used Car Loan',
+    'Auto Loan Top Up',
+    'Refinance',
+    'Balance Transfer',
+    'Personal Loan',
+    'Home Loan',
+  ];
+  const primaryPhone = settings.primaryPhone || '+91 8660516762';
+  const alternatePhone = settings.alternatePhone || '+91 8197596707';
+
   usePageMeta({
     title: 'Apply Now | Car Loans & Sales',
     description: 'Submit your car loan application with quick approvals and minimal documentation.',
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const hasPrefilledRef = useRef(false);
+  const hasNotifiedRef = useRef(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
   } = useForm({
     resolver: zodResolver(formSchema),
   });
+
+  useEffect(() => {
+    if (hasPrefilledRef.current) return;
+    const firstName = searchParams.get('firstName');
+    const phone = searchParams.get('phone');
+    const loanType = searchParams.get('loanType');
+
+    if (firstName) setValue('firstName', firstName);
+    if (phone) setValue('phone', phone);
+    if (loanType) setValue('loanType', loanType);
+
+    hasPrefilledRef.current = true;
+  }, [searchParams, setValue]);
+
+  useEffect(() => {
+    const showHelpToast = () => {
+      if (hasNotifiedRef.current) return;
+      hasNotifiedRef.current = true;
+      toast(`Need help? Call ${primaryPhone} / ${alternatePhone}`, {
+        icon: '☎️',
+        duration: 6000,
+      });
+    };
+
+    const timer = setTimeout(showHelpToast, 12000);
+    const handleMouseLeave = (event) => {
+      if (event.clientY <= 0) showHelpToast();
+    };
+
+    window.addEventListener('mouseout', handleMouseLeave);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('mouseout', handleMouseLeave);
+    };
+  }, [primaryPhone, alternatePhone]);
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
@@ -61,9 +116,13 @@ const ApplyNow = () => {
         title="Apply for Car Loan"
         subtitle="Fill out the form below and we'll get back to you within 24-48 hours"
         className="bg-gradient-to-r from-primary to-red-700"
+        breadcrumbs={[
+          { label: 'Home', to: '/' },
+          { label: 'Apply Now' },
+        ]}
       />
 
-      <div className="max-w-6xl mx-auto px-4 py-16 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="max-w-6xl mx-auto px-4 py-16 grid grid-cols-1 lg:grid-cols-3 gap-8 reveal" data-reveal>
         <div className="lg:col-span-2">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
           {/* Loan Type */}

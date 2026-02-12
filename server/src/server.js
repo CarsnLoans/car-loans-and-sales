@@ -7,11 +7,13 @@ const morgan = require('morgan');
 const connectDB = require('./config/database');
 const errorHandler = require('./middleware/errorHandler');
 const createDefaultAdmin = require('./utils/createDefaultAdmin');
+const createDefaultSettings = require('./utils/createDefaultSettings');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const leadRoutes = require('./routes/leadRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const settingsRoutes = require('./routes/settingsRoutes');
 
 // Initialize app
 const app = express();
@@ -21,6 +23,9 @@ connectDB();
 
 // Create default admin if doesn't exist
 createDefaultAdmin();
+
+// Create default settings if doesn't exist
+createDefaultSettings();
 
 // Middleware
 app.use(helmet()); // Security headers
@@ -64,6 +69,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/leads', leadRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Error handler (must be last)
 app.use(errorHandler);

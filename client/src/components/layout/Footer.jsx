@@ -1,7 +1,23 @@
 import { Link } from 'react-router-dom';
-import { CONTACT_INFO } from '../../constants/data';
+import useSettings from '../../hooks/useSettings';
+import { SOCIAL_LINKS } from '../../constants/data';
 
 const Footer = () => {
+  const { settings = {} } = useSettings();
+  
+  const loanTypes = settings.loanTypes || [
+    'New Car Loan',
+    'Used Car Loan',
+    'Auto Loan Top Up',
+    'Refinance',
+    'Balance Transfer',
+    'Personal Loan',
+    'Home Loan',
+  ];
+  
+  const primaryPhone = settings.primaryPhone || '+91 8660516762';
+  const alternatePhone = settings.alternatePhone || '+91 8197596707';
+  const email = settings.email || 'info@carloansandsales.com';
   return (
     <footer className="bg-dark text-white mt-16">
       <div className="max-w-7xl mx-auto px-4 py-12">
@@ -45,11 +61,9 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Services</h3>
             <ul className="space-y-2 text-gray-400">
-              <li>New Car Loan</li>
-              <li>Used Car Loan</li>
-              <li>Auto Loan Top Up</li>
-              <li>Refinance</li>
-              <li>Balance Transfer</li>
+              {loanTypes.map((type) => (
+                <li key={type}>{type}</li>
+              ))}
             </ul>
           </div>
 
@@ -58,10 +72,10 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
             <ul className="space-y-2 text-gray-400">
               <li>
-                <span className="font-semibold">Phone:</span> {CONTACT_INFO.phone}
+                <span className="font-semibold">Phone:</span> {primaryPhone} / {alternatePhone}
               </li>
               <li>
-                <span className="font-semibold">Email:</span> {CONTACT_INFO.email}
+                <span className="font-semibold">Email:</span> {email}
               </li>
             </ul>
           </div>

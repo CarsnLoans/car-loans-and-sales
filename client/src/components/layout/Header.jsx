@@ -1,11 +1,17 @@
 import { Link, useLocation } from 'react-router-dom';
-import { CONTACT_INFO, SOCIAL_LINKS } from '../../constants/data';
+import useSettings from '../../hooks/useSettings';
+import { SOCIAL_LINKS } from '../../constants/data';
 import { Facebook, Instagram } from 'lucide-react';
 import { useState } from 'react';
 
 const Header = () => {
+  const { settings = {} } = useSettings();
   const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  
+  const primaryPhone = settings.primaryPhone || '+91 8660516762';
+  const alternatePhone = settings.alternatePhone || '+91 8197596707';
+  const email = settings.email || 'info@carloansandsales.com';
 
   const navItems = [
     { label: 'Home', path: '/' },
@@ -22,8 +28,8 @@ const Header = () => {
       <div className="bg-dark text-white text-sm">
         <div className="max-w-7xl mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-4">
-            <span>Call: {CONTACT_INFO.phone} / {CONTACT_INFO.alternatePhone}</span>
-            <span>Email: {CONTACT_INFO.email}</span>
+            <span>Call: {primaryPhone} / {alternatePhone}</span>
+            <span>Email: {email}</span>
           </div>
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline">Quick approval • Minimal docs</span>
