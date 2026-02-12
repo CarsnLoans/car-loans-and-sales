@@ -89,7 +89,3 @@ Roles supported in the admin panel:
 The **default Super Admin** is created from these environment variables in `server/.env`:
 - `ADMIN_DEFAULT_EMAIL`
 - `ADMIN_DEFAULT_PASSWORD`
-
-Example (defaults):
-- Email: `carloansandsales123@gmail.com`
-- Password: `admin123`
