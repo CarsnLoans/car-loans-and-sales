@@ -1,8 +1,16 @@
-const postmark = require('postmark');
+const nodemailer = require('nodemailer');
 const EmailTemplate = require('../models/EmailTemplate');
 const { defaultEmailTemplates } = require('../utils/defaultEmailTemplates');
 
-const client = new postmark.ServerClient(process.env.POSTMARK_API_KEY);
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT || 587),
+  secure: String(process.env.SMTP_SECURE || '').toLowerCase() === 'true',
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
 const renderTemplate = (template, data = {}) => {
   if (!template) return '';
@@ -37,24 +45,43 @@ const sendEmail = async ({ to, subject, template, data }) => {
       throw new Error(`Email template '${template}' not found`);
     }
 
-    const templateSubject = renderTemplate(emailTemplate.subject, data);
-    const htmlBody = renderTemplate(emailTemplate.htmlBody, data);
-    const textBody = renderTemplate(emailTemplate.textBody, data);
+    const mergedData = {
+      companyName: process.env.COMPANY_NAME || 'Car Loans & Sales',
+      logoUrl:
+        process.env.EMAIL_LOGO_URL ||
+        (process.env.SERVER_URL ? `${process.env.SERVER_URL.replace(/\/$/, '')}/assets/logo.svg` : ''),
+      supportEmail: process.env.SUPPORT_EMAIL || 'info@carloansandsales.com',
+      supportPhone: process.env.SUPPORT_PHONE || '+91 9686-870-536',
+      ...data,
+    };
 
-    // Send email via Postmark
-    const result = await client.sendEmail({
-      From: process.env.FROM_EMAIL,
-      To: to,
-      Subject: subject || templateSubject,
-      HtmlBody: htmlBody,
-      TextBody: textBody,
-      MessageStream: 'outbound',
+    const templateSubject = renderTemplate(emailTemplate.subject, mergedData);
+    const htmlBody = renderTemplate(emailTemplate.htmlBody, mergedData);
+    const textBody = renderTemplate(emailTemplate.textBody, mergedData);
+
+    // Send email via Nodemailer
+    const fromEmail = process.env.FROM_EMAIL;
+    const finalSubject = subject || templateSubject;
+
+
+    const result = await transporter.sendMail({
+      from: fromEmail,
+      to,
+      subject: finalSubject,
+      html: htmlBody,
+      text: textBody,
     });
 
-    console.log('✅ Email sent successfully:', result.MessageID);
+    console.log('✅ Email sent successfully:', {
+      to,
+      messageId: result.messageId,
+    });
     return result;
   } catch (error) {
-    console.error('❌ Email sending failed:', error.message);
+    console.error('❌ Email sending failed:', {
+      to,
+      message: error.message,
+    });
     // Don't throw error - just log it so application continues
     return null;
   }

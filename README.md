@@ -24,10 +24,10 @@ MONGODB_URI=mongodb://localhost:27017/car-loans-sales
 JWT_SECRET=change-this-secret
 JWT_EXPIRE=7d
 POSTMARK_API_KEY=your-postmark-key
-ADMIN_EMAIL=admin@carloansandsales.com
+ADMIN_EMAIL=carloansandsales123@gmail.com
 FROM_EMAIL=noreply@carloansandsales.com
 CLIENT_URL=http://localhost:5173
-ADMIN_DEFAULT_EMAIL=admin@carloansandsales.com
+ADMIN_DEFAULT_EMAIL=carloansandsales123@gmail.com
 ADMIN_DEFAULT_PASSWORD=admin123
 ```
 
@@ -87,5 +87,5 @@ The **default Super Admin** is created from these environment variables in `serv
 - `ADMIN_DEFAULT_PASSWORD`
 
 Example (defaults):
-- Email: `admin@carloansandsales.com`
+- Email: `carloansandsales123@gmail.com`
 - Password: `admin123`

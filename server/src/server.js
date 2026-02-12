@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const connectDB = require('./config/database');
@@ -23,6 +24,7 @@ createDefaultAdmin();
 
 // Middleware
 app.use(helmet()); // Security headers
+app.use('/assets', express.static(path.join(__dirname, '..', 'public')));
 
 const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
   .split(',')
