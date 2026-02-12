@@ -22,7 +22,7 @@ const Header = () => {
       <div className="bg-dark text-white text-sm">
         <div className="max-w-7xl mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-4">
-            <span>Call: {CONTACT_INFO.phone}</span>
+            <span>Call: {CONTACT_INFO.phone} / {CONTACT_INFO.alternatePhone}</span>
             <span>Email: {CONTACT_INFO.email}</span>
           </div>
           <div className="flex items-center gap-3">

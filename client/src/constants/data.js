@@ -61,6 +61,7 @@ export const INDIAN_STATES = [
 
 export const CONTACT_INFO = {
   phone: '+91 9686-870-536',
+  alternatePhone: '+91 8197596707',
   email: 'info@carloansandsales.com',
 };
 
